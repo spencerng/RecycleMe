@@ -81,4 +81,4 @@ lint/outputs/
 lint/tmp/
 # lint/reports/
 
-/app/src/main/res/values/gcloud.json
+app/src/main/res/values/gcloud.json
