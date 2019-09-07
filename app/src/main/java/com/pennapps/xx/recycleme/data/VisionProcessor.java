@@ -1,5 +1,7 @@
 package com.pennapps.xx.recycleme.data;
 
+import android.os.AsyncTask;
+
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -8,8 +10,6 @@ import com.google.cloud.vision.v1.Feature;
 import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.protobuf.ByteString;
-import com.pennapps.xx.recycleme.models.RecyclableObject;
-import com.pennapps.xx.recycleme.models.RecycleCenter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,14 +18,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisionProcessor {
+public class VisionProcessor extends AsyncTask<String, Void, ArrayList<String>> {
 
-    private static ArrayList<String> getItems(String imagePath) throws IOException {
-        ArrayList<String> labels = new ArrayList<String>();
-        try (ImageAnnotatorClient vision = ImageAnnotatorClient.create()) {
+    public ArrayList<String> doInBackground(String... imagePath) {
+        ArrayList<String> labels = new ArrayList<>();
 
+        try {
+            ImageAnnotatorClient vision = ImageAnnotatorClient.create();
             // The path to the image file to annotate: somehow get this from the camera?
-            String fileName = imagePath;
+            String fileName = imagePath[0];
 
             // Reads the image file into memory
             Path path = Paths.get(fileName);
@@ -56,29 +57,10 @@ public class VisionProcessor {
                     labels.add(annotation.getDescription());
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return labels;
     }
 
-
-    public static ArrayList<RecycleCenter> getSortedRecycleCenters(String imageToAnalyzePath, Object startLocation, Object endLocation) {
-        ArrayList<RecyclableObject> items = new ArrayList<>();
-
-        try {
-            ArrayList<String> itemLabels = getItems(imageToAnalyzePath);
-
-
-            // Extract this from start location later
-            String zipCode = "08902";
-
-
-            for (String itemLabel : itemLabels) {
-                items.add(new RecyclableObject(itemLabel, new RecycleCenterFinder().execute(itemLabel, zipCode).get()));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
-    }
 }

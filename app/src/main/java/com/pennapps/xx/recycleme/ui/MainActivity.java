@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -20,11 +21,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import com.pennapps.xx.recycleme.R;
+import com.pennapps.xx.recycleme.data.DistanceOptimizer;
 import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
 import com.pennapps.xx.recycleme.data.VisionProcessor;
+import com.pennapps.xx.recycleme.models.RecyclableObject;
+import com.pennapps.xx.recycleme.models.RecycleCenter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
@@ -99,12 +104,35 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, Object startLocation, Object endLocation) {
+        ArrayList<RecyclableObject> items = new ArrayList<>();
+
+        try {
+            ArrayList<String> itemLabels = new VisionProcessor().execute(imageFilePath).get();
+            for (String label : itemLabels) {
+                Log.i("item", label);
+            }
+
+            // Extract this from start location later
+            String zipCode = "08902";
+
+
+            for (String itemLabel : itemLabels) {
+                items.add(new RecyclableObject(itemLabel, new RecycleCenterFinder().execute(itemLabel, zipCode).get()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath, bmOptions);
         imageView.setImageBitmap(bitmap);
-        VisionProcessor.getSortedRecycleCenters(imageFilePath, null, null);
+        getSortedRecycleCenters(imageFilePath, null, null);
     }
 
 }
