@@ -37,4 +37,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'com.google.cloud:google-cloud-vision:1.90.0'
     implementation 'androidx.preference:preference:1.1.0-alpha05'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'org.jetbrains:annotations-java5:15.0'
 }
