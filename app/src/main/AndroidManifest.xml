@@ -3,6 +3,7 @@
     xmlns:dist="http://schemas.android.com/apk/distribution"
     package="com.pennapps.xx.recycleme">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,5 +21,6 @@
     </application>
 
     <dist:module dist:instant="true" />
+
 
 </manifest>

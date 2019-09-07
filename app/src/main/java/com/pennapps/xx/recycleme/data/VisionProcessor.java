@@ -12,6 +12,7 @@ public class VisionProcessor {
     }
 
     public static ArrayList<RecycleCenter> getSortedRecycleCenters(Object imageToAnalyze, Object startLocation, Object endLocation) {
+
         String[] itemLabels = getItems(imageToAnalyze);
 
         ArrayList<RecyclableObject> items = new ArrayList<>();
@@ -19,8 +20,13 @@ public class VisionProcessor {
         // Extract this from start location later
         String zipCode = "08902";
 
-        for (String itemLabel : itemLabels) {
-            items.add(new RecyclableObject(itemLabel, RecycleCenterFinder.getRecycleCenters(itemLabel, zipCode)));
+        try {
+
+            for (String itemLabel : itemLabels) {
+                items.add(new RecyclableObject(itemLabel, new RecycleCenterFinder().execute(itemLabel, zipCode).get()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
