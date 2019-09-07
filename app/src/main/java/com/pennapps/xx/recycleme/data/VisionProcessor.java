@@ -30,7 +30,7 @@ public class VisionProcessor {
         try (ImageAnnotatorClient vision = ImageAnnotatorClient.create()) {
 
             // The path to the image file to annotate: somehow get this from the camera?
-            String fileName = "./resources/wakeupcat.jpg";
+            String fileName = new String();
 
             // Reads the image file into memory
             Path path = Paths.get(fileName);
