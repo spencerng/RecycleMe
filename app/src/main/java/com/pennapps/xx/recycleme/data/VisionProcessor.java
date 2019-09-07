@@ -18,9 +18,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class VisionProcessor extends AsyncTask<String, Void, ArrayList<String>> {
 
     public ArrayList<String> doInBackground(String... imagePath) {
+
         ArrayList<String> labels = new ArrayList<>();
 
         try {
