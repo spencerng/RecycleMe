@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class RecycleCenterFinder {
 
-    public static ArrayList<RecycleCenter> getRecycleCenters(String objectType) {
+    public static ArrayList<RecycleCenter> getRecycleCenters(String objectType, String zipCode) {
         return new ArrayList<>();
     }
 
