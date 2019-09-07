@@ -2,6 +2,7 @@ package com.pennapps.xx.recycleme.ui;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
 import com.pennapps.xx.recycleme.R;
 import com.pennapps.xx.recycleme.data.DistanceOptimizer;
 import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
@@ -74,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        settings.setOnClickListener(new OnClickListener(){
-            public void onClick(View v){
+        settings.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
                 Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
                 MainActivity.this.startActivity(myIntent);
             }
@@ -116,17 +118,25 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<RecyclableObject> items = new ArrayList<>();
 
         try {
-            ArrayList<String> itemLabels = new VisionProcessor(getApplicationContext(), imageFilePath).execute().get();
-            for (String label : itemLabels) {
-                Log.i("item", label);
+            ArrayList<FirebaseVisionImageLabel> itemLabels = new VisionProcessor(getApplicationContext(), imageFilePath).execute().get();
+            String display = "";
+
+            for (FirebaseVisionImageLabel label : itemLabels) {
+                display += label.getText() + ": " + label.getConfidence() + "\n";
             }
+
+            Log.i("tag", display);
+            new AlertDialog.Builder(this)
+                    .setMessage(display)
+                    .setPositiveButton(android.R.string.yes, null)
+                    .show();
 
             // Extract this from start location later
             String zipCode = "08902";
 
 
-            for (String itemLabel : itemLabels) {
-                items.add(new RecyclableObject(itemLabel, new RecycleCenterFinder().execute(itemLabel, zipCode).get()));
+            for (FirebaseVisionImageLabel itemLabel : itemLabels) {
+                items.add(new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -143,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageBitmap(bitmap);
         getSortedRecycleCenters(imageFilePath, null, null);
     }
-
 
 
 }

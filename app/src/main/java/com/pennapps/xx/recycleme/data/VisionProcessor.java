@@ -3,7 +3,6 @@ package com.pennapps.xx.recycleme.data;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<String>> {
+public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<FirebaseVisionImageLabel>> {
 
     private Context c;
     private String imagePath;
@@ -28,9 +27,9 @@ public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<String>> {
         this.imagePath = imagePath;
     }
 
-    public ArrayList<String> doInBackground(Void... params) {
+    public ArrayList<FirebaseVisionImageLabel> doInBackground(Void... params) {
         FirebaseApp.initializeApp(c);
-        ArrayList<String> labels = new ArrayList<>();
+        final ArrayList<FirebaseVisionImageLabel> firebaseLabels = new ArrayList<>();
 
         try {
             FirebaseVisionImage image =
@@ -43,18 +42,16 @@ public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<String>> {
                         @Override
                         public void onSuccess(List<FirebaseVisionImageLabel> labels) {
                             for (FirebaseVisionImageLabel label : labels) {
-                                String text = label.getText();
-                                String entityId = label.getEntityId();
-                                float confidence = label.getConfidence();
-                                Log.i("item", text + ": " + confidence);
+                                firebaseLabels.add(label);
                             }
                         }
                     });
 
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return labels;
+        return firebaseLabels;
     }
 
 }
