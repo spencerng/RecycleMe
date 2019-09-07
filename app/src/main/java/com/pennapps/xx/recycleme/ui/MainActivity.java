@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
+    Button settings;
     public int REQUEST_IMAGE_CAPTURE = 1;
     ImageView imageView;
     String imageFilePath;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         new RecycleCenterFinder().execute("calculator", "08902");
         btn = findViewById(R.id.button1);
+        settings = findViewById(R.id.button);
         imageView = findViewById(R.id.imageView);
         btn.setOnClickListener(new OnClickListener() {
 
@@ -70,6 +72,12 @@ public class MainActivity extends AppCompatActivity {
 
                 openCameraIntent();
 
+            }
+        });
+        settings.setOnClickListener(new OnClickListener(){
+            public void onClick(View v){
+                Intent myIntent = new Intent(MainActivity.this, SettingsActivity.class);
+                MainActivity.this.startActivity(myIntent);
             }
         });
     }
@@ -129,10 +137,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath, bmOptions);
         imageView.setImageBitmap(bitmap);
         getSortedRecycleCenters(imageFilePath, null, null);
     }
+
+
 
 }
