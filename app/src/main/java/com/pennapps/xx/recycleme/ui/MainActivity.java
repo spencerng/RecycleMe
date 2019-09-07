@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<RecyclableObject> items = new ArrayList<>();
 
         try {
-            ArrayList<String> itemLabels = new VisionProcessor().execute(imageFilePath).get();
+            ArrayList<String> itemLabels = new VisionProcessor(getApplicationContext(), imageFilePath).execute().get();
             for (String label : itemLabels) {
                 Log.i("item", label);
             }
