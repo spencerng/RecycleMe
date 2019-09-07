@@ -2,7 +2,6 @@ package com.pennapps.xx.recycleme.data;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<FirebaseVisionImageLabel>> {
+public class VisionProcessor {
 
     private Context c;
     private String imagePath;
@@ -27,7 +26,7 @@ public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<FirebaseVis
         this.imagePath = imagePath;
     }
 
-    public ArrayList<FirebaseVisionImageLabel> doInBackground(Void... params) {
+    public void process(final Callback cb) {
         FirebaseApp.initializeApp(c);
         final ArrayList<FirebaseVisionImageLabel> firebaseLabels = new ArrayList<>();
 
@@ -41,9 +40,7 @@ public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<FirebaseVis
                     .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
                         @Override
                         public void onSuccess(List<FirebaseVisionImageLabel> labels) {
-                            for (FirebaseVisionImageLabel label : labels) {
-                                firebaseLabels.add(label);
-                            }
+                            cb.onVisionProcessingDone(labels);
                         }
                     });
 
@@ -51,7 +48,12 @@ public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<FirebaseVis
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return firebaseLabels;
+
+
+    }
+
+    public interface Callback {
+        void onVisionProcessingDone(List<FirebaseVisionImageLabel> labels);
     }
 
 }
