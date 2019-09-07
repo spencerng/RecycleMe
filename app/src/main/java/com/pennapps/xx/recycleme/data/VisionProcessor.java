@@ -65,7 +65,7 @@ public class VisionProcessor {
         return labels;
     }
 
-    public static ArrayList<RecycleCenter> getSortedRecycleCenters(Object imageToAnalyze, Object startLocation, Object endLocation) {
+   /* public static ArrayList<RecycleCenter> getSortedRecycleCenters(Object imageToAnalyze, Object startLocation, Object endLocation) {
         ArrayList<String> itemLabels = getItems(imageToAnalyze);
 
         ArrayList<RecyclableObject> items = new ArrayList<>();
@@ -78,5 +78,5 @@ public class VisionProcessor {
         }
 
         return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
-    }
+    }*/
 }
