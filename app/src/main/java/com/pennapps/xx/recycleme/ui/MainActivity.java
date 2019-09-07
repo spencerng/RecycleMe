@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import com.pennapps.xx.recycleme.R;
+import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
@@ -18,6 +19,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        new RecycleCenterFinder().execute("calculator", "08902");
         btn=(Button)findViewById(R.id.button1);
         btn.setOnClickListener(new OnClickListener() {
 

@@ -1,9 +1,5 @@
 package com.pennapps.xx.recycleme.data;
 
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -24,13 +20,12 @@ import java.util.List;
 
 public class VisionProcessor {
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private static ArrayList<String> getItems(Object imageToAnalyze) throws IOException {
         ArrayList<String> labels = new ArrayList<String>();
         try (ImageAnnotatorClient vision = ImageAnnotatorClient.create()) {
 
             // The path to the image file to annotate: somehow get this from the camera?
-            String fileName = new String();
+            String fileName = "";
 
             // Reads the image file into memory
             Path path = Paths.get(fileName);
@@ -58,25 +53,32 @@ public class VisionProcessor {
                 }
 
                 for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
-                   labels.add(annotation.getDescription());
+                    labels.add(annotation.getDescription());
                 }
             }
         }
         return labels;
     }
 
-   /* public static ArrayList<RecycleCenter> getSortedRecycleCenters(Object imageToAnalyze, Object startLocation, Object endLocation) {
-        ArrayList<String> itemLabels = getItems(imageToAnalyze);
 
+    public static ArrayList<RecycleCenter> getSortedRecycleCenters(Object imageToAnalyze, Object startLocation, Object endLocation) {
         ArrayList<RecyclableObject> items = new ArrayList<>();
 
-        // Extract this from start location later
-        String zipCode = "08902";
+        try {
+            ArrayList<String> itemLabels = getItems(imageToAnalyze);
 
-        for (String itemLabel : itemLabels) {
-            items.add(new RecyclableObject(itemLabel, RecycleCenterFinder.getRecycleCenters(itemLabel, zipCode)));
+
+            // Extract this from start location later
+            String zipCode = "08902";
+
+
+            for (String itemLabel : itemLabels) {
+                items.add(new RecyclableObject(itemLabel, new RecycleCenterFinder().execute(itemLabel, zipCode).get()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
-    }*/
+    }
 }
