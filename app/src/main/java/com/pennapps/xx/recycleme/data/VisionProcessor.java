@@ -1,5 +1,7 @@
 package com.pennapps.xx.recycleme.data;
 
+import android.os.AsyncTask;
+
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -20,15 +22,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisionProcessor {
+public class VisionProcessor extends AsyncTask<String, Void, ArrayList<String>> {
 
-   //Gets items using Vision label detection
-    private static ArrayList<String> getItemsWithLabels(Object imageToAnalyze) throws IOException {
-        ArrayList<String> labels = new ArrayList<String>();
-        try (ImageAnnotatorClient vision = ImageAnnotatorClient.create()) {
+    public ArrayList<String> doInBackground(String... imagePath) {
+        ArrayList<String> labels = new ArrayList<>();
 
+        try {
+            ImageAnnotatorClient vision = ImageAnnotatorClient.create();
             // The path to the image file to annotate: somehow get this from the camera?
-            String fileName = "";
+            String fileName = imagePath[0];
 
             // Reads the image file into memory
             Path path = Paths.get(fileName);
@@ -59,6 +61,7 @@ public class VisionProcessor {
                     labels.add(annotation.getDescription());
                 }
             }
+        } catch (IOException e) {
         }
         return labels;
     }
@@ -97,7 +100,7 @@ public class VisionProcessor {
         ArrayList<RecyclableObject> items = new ArrayList<>();
 
         try {
-            ArrayList<String> itemLabels = getItemsWithLabels(imageToAnalyze);
+            ArrayList<String> itemLabels = getItemsWithObjectDet(imageToAnalyze);
 
 
             // Extract this from start location later

@@ -36,7 +36,7 @@ public class RecycleCenterFinder extends AsyncTask<String, Void, ArrayList<Recyc
                         collectedMaterials.add(material.html());
                     }
 
-                    locations.add(new RecycleCenter(name, address, collectedMaterials));
+                    locations.add(new RecycleCenter(name, address, "location", collectedMaterials));
                 }
             }
         } catch (IOException e) {
