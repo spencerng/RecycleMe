@@ -1,13 +1,17 @@
 package com.pennapps.xx.recycleme.models;
 
+import java.util.ArrayList;
+
 public class RecycleCenter {
 
     private String address;
-    private String[] objectTypes;
+    private ArrayList<String> materialTypes;
+    private String name;
 
-    public RecycleCenter(String address, String[] objectTypes) {
+    public RecycleCenter(String name, String address, ArrayList<String> materialTypes) {
         this.address = address;
-        this.objectTypes = objectTypes;
+        this.materialTypes = materialTypes;
+        this.name = name;
     }
 
     public String getAddress() {
