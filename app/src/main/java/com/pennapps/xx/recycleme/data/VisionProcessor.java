@@ -1,64 +1,56 @@
 package com.pennapps.xx.recycleme.data;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 
-import com.google.cloud.vision.v1.AnnotateImageRequest;
-import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
-import com.google.cloud.vision.v1.EntityAnnotation;
-import com.google.cloud.vision.v1.Feature;
-import com.google.cloud.vision.v1.Image;
-import com.google.cloud.vision.v1.ImageAnnotatorClient;
-import com.google.protobuf.ByteString;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class VisionProcessor extends AsyncTask<String, Void, ArrayList<String>> {
+public class VisionProcessor extends AsyncTask<Void, Void, ArrayList<String>> {
 
-    public ArrayList<String> doInBackground(String... imagePath) {
+    private Context c;
+    private String imagePath;
 
+    public VisionProcessor(Context context, String imagePath) {
+        c = context;
+        this.imagePath = imagePath;
+    }
+
+    public ArrayList<String> doInBackground(Void... params) {
+        FirebaseApp.initializeApp(c);
         ArrayList<String> labels = new ArrayList<>();
 
         try {
-            ImageAnnotatorClient vision = ImageAnnotatorClient.create();
-            // The path to the image file to annotate: somehow get this from the camera?
-            String fileName = imagePath[0];
+            FirebaseVisionImage image =
+                    FirebaseVisionImage.fromFilePath(c, Uri.fromFile(new File(imagePath)));
+            FirebaseVisionImageLabeler labeler = FirebaseVision.getInstance()
+                    .getCloudImageLabeler();
 
-            // Reads the image file into memory
-            Path path = Paths.get(fileName);
-            byte[] data = Files.readAllBytes(path);
-            ByteString imgBytes = ByteString.copyFrom(data);
+            labeler.processImage(image)
+                    .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
+                        @Override
+                        public void onSuccess(List<FirebaseVisionImageLabel> labels) {
+                            for (FirebaseVisionImageLabel label : labels) {
+                                String text = label.getText();
+                                String entityId = label.getEntityId();
+                                float confidence = label.getConfidence();
+                                Log.i("item", text + ": " + confidence);
+                            }
+                        }
+                    });
 
-            // Builds the image annotation request
-            List<AnnotateImageRequest> requests = new ArrayList<>();
-            Image img = Image.newBuilder().setContent(imgBytes).build();
-            Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-            AnnotateImageRequest request = AnnotateImageRequest.newBuilder()
-                    .addFeatures(feat)
-                    .setImage(img)
-                    .build();
-            requests.add(request);
-
-            // Performs label detection on the image file
-            BatchAnnotateImagesResponse response = vision.batchAnnotateImages(requests);
-            List<AnnotateImageResponse> responses = response.getResponsesList();
-
-            for (AnnotateImageResponse res : responses) {
-                if (res.hasError()) {
-                    System.out.printf("Error: %s\n", res.getError().getMessage());
-                    return null;
-                }
-
-                for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
-                    labels.add(annotation.getDescription());
-                }
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
