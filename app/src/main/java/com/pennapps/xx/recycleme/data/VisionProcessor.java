@@ -70,8 +70,11 @@ public class VisionProcessor {
 
         ArrayList<RecyclableObject> items = new ArrayList<>();
 
+        // Extract this from start location later
+        String zipCode = "08902";
+
         for (String itemLabel : itemLabels) {
-            items.add(new RecyclableObject(itemLabel, RecycleCenterFinder.getRecycleCenters(itemLabel)));
+            items.add(new RecyclableObject(itemLabel, RecycleCenterFinder.getRecycleCenters(itemLabel, zipCode)));
         }
 
         return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
