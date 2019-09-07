@@ -60,6 +60,7 @@ public class VisionProcessor {
         return labels;
     }
 
+
     public static ArrayList<RecycleCenter> getSortedRecycleCenters(Object imageToAnalyze, Object startLocation, Object endLocation) {
         ArrayList<RecyclableObject> items = new ArrayList<>();
 
