@@ -1,8 +1,10 @@
-package com.pennapps.xx.recycleme;
+package com.pennapps.xx.recycleme.ui;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.pennapps.xx.recycleme.R;
 
 public class MainActivity extends AppCompatActivity {
 
