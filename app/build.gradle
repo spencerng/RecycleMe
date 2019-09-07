@@ -51,6 +51,5 @@ dependencies {
 
     implementation'com.google.firebase:firebase-auth:19.0.0'
 
-    implementation 'com.google.cloud:google-cloud-vision:1.90.0'
     implementation 'androidx.preference:preference:1.1.0-alpha05'
 }
