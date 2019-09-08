@@ -11,6 +11,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 import com.pennapps.xx.recycleme.R;
+import com.pennapps.xx.recycleme.models.RecycleCenter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +19,14 @@ import java.util.List;
 public class ResultsActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private ArrayList<RecycleCenter> rcenters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
         Intent intent = getIntent();
+        //  centers = intent.getSerializableExtra("rcenters");
 
         viewPager = findViewById(R.id.pager);
         setupViewPager(viewPager);

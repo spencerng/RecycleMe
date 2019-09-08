@@ -16,17 +16,22 @@ import com.pennapps.xx.recycleme.models.RecycleCenter;
 import com.pennapps.xx.recycleme.ui.views.RCView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ListFragment extends Fragment {
     public ListFragment(){}
-    ArrayList<String> items1 = new ArrayList<String>(Arrays.asList("Lightbulb", "Cable") );
-    ArrayList<String> items2 = new ArrayList<String>(Arrays.asList("Shoe", "Electronics") );
 
-    ArrayList<RecycleCenter> centers = new ArrayList<RecycleCenter>(Arrays.asList(new RecycleCenter
+    ArrayList<RecycleCenter> centers;
+    // ArrayList<String> items1 = new ArrayList<String>(Arrays.asList("Lightbulb", "Cable") );
+    // ArrayList<String> items2 = new ArrayList<String>(Arrays.asList("Shoe", "Electronics") );
+    /*= new ArrayList<RecycleCenter>(Arrays.asList(new RecycleCenter
                     ("Center 1", "100 Technology Drive, Edison, NJ, 08837","Drop-Off", items1),
-                new RecycleCenter("Center 2", "123 Ho Plaza, Ithaca, NY, 14853", "Drop-Off", items2)));
+                new RecycleCenter("Center 2", "123 Ho Plaza, Ithaca, NY, 14853", "Drop-Off", items2)));*/
     RelativeLayout centerContainer;
+
+    public ListFragment(ArrayList<RecycleCenter> centersList) {
+        centers = centersList;
+    }
+
 
     public static ListFragment newInstance() {
         return new ListFragment();
@@ -40,14 +45,16 @@ public class ListFragment extends Fragment {
     public void onResume() {
         super.onResume();
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ScrollView rl = (ScrollView) inflater.inflate(R.layout.results_list, container, false);
-        centerContainer = (RelativeLayout) rl.findViewById(R.id.centerContainer);
+        centerContainer = rl.findViewById(R.id.centerContainer);
 
         int lastId = 0;
         boolean firstTime = true;
+        centers = new ArrayList<>();
         Toast.makeText(getContext(), Integer.toString(centers.size()),Toast.LENGTH_SHORT).show();
 
 
@@ -56,17 +63,17 @@ public class ListFragment extends Fragment {
             int currentId = View.generateViewId();
             av.setId(currentId);
             av.setRC(center);
-            TextView name = (TextView) av.findViewById(R.id.title);
-            TextView address = (TextView) av.findViewById(R.id.address);
-            TextView items = (TextView) av.findViewById(R.id.items);
-            TextView distance = (TextView) av.findViewById(R.id.distance);
-            TextView number = (TextView) av.findViewById(R.id.number);
+            TextView name = av.findViewById(R.id.title);
+            TextView address = av.findViewById(R.id.address);
+            TextView items = av.findViewById(R.id.items);
+            TextView distance = av.findViewById(R.id.distance);
+            TextView number = av.findViewById(R.id.number);
 
             name.setText(center.getName());
             address.setText(center.getAddress());
             items.setText("Items List");
-            //distance.setText(center.getDrivingDistance(new Object()) + "mi");
-            distance.setText("2.0 mi");
+            distance.setText(center.getDrivingDistance(MainActivity.currentLocation) + "mi");
+            //distance.setText("2.0 mi");
             number.setText(centers.indexOf(center)+1);
 
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

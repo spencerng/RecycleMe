@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     TextView resultView;
     String zipCode;
     double latitude, longitude;
-    Location currentLocation;
+    public static Location currentLocation;
     List<FirebaseVisionImageLabel> labels;
     boolean locationFetched, labelsFetched;
 
@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void fetchItemLabels(List<FirebaseVisionImageLabel> itemLabels) {
                 try {
+                    labelsFetched = true;
                     labels = itemLabels;
                     if (locationFetched) {
                         fetchRecycleCenters();
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Location location) {
                 try {
+                    locationFetched = true;
                     Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
                     zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
                     currentLocation = location;
@@ -198,9 +200,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        ArrayList<RecycleCenter> centersToPass = getMinDistance(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
+        ArrayList<RecycleCenter> centersToPass = sortCenters(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
 
         // Create intent filter here
+        Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);
+        // toResult.putExtra("rcenters", centersToPass);
+        MainActivity.this.startActivity(toResult);
 
     }
 
@@ -217,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         return new ArrayList<>();
     }
 
-    public ArrayList<RecycleCenter> getMinDistance(ArrayList<RecycleCenter> centers, Location startPoint, Location endPoint) {
+    public ArrayList<RecycleCenter> sortCenters(ArrayList<RecycleCenter> centers, Location startPoint, Location endPoint) {
         return new ArrayList<>();
     }
 
