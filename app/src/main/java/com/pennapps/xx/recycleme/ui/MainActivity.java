@@ -198,9 +198,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        ArrayList<RecycleCenter> centersToPass = getMinDistance(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
+        ArrayList<RecycleCenter> centersToPass = sortCenters(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
 
         // Create intent filter here
+        Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);
+       // toResult.putExtra("rcenters", centersToPass);
+        MainActivity.this.startActivity(toResult);
 
     }
 
@@ -217,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         return new ArrayList<>();
     }
 
-    public ArrayList<RecycleCenter> getMinDistance(ArrayList<RecycleCenter> centers, Location startPoint, Location endPoint) {
+    public ArrayList<RecycleCenter> sortCenters(ArrayList<RecycleCenter> centers, Location startPoint, Location endPoint) {
         return new ArrayList<>();
     }
 

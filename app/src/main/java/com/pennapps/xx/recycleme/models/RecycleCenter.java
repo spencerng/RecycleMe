@@ -2,7 +2,7 @@ package com.pennapps.xx.recycleme.models;
 
 import java.util.ArrayList;
 
-public class RecycleCenter {
+public class RecycleCenter{
 
     private String address;
     private ArrayList<String> materialTypes;
