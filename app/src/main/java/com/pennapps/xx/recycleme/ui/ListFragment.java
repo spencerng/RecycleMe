@@ -66,7 +66,7 @@ public class ListFragment extends Fragment {
             name.setText(center.getName());
             address.setText(center.getAddress());
             items.setText(center.getItemsThatMatter());
-            distance.setText(String.format("%.1f", center.getDrivingDistance(MainActivity.currentLocation)) + "mi");
+            distance.setText(String.format("%.1f", center.getDrivingDistance(MainActivity.currentLocation, getContext())) + "mi");
             //distance.setText("2.0 mi");
             number.setText(num++ + ". ");
 
