@@ -4,21 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#7CFFFFFF"
     tools:context=".ui.SettingsActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
+
+        <TextView
+            android:id="@+id/settingstitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="75dp"
+            android:gravity="center"
+            android:text="Settings"
+            android:textColor="#091452"
+            android:textSize="60sp" />
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="120dp"
+            android:layout_marginTop="75dp"
             android:text="Select Preference:"
+            android:textColor="#091452"
             android:textSize="30sp"
             tools:layout_editor_absoluteX="24dp"
             tools:layout_editor_absoluteY="120dp" />
@@ -34,6 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Minimum Distance"
+                android:textColor="#091452"
                 android:textSize="18sp" />
 
             <RadioButton
@@ -41,6 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Minimum Number of Stops"
+                android:textColor="#091452"
                 android:textSize="18sp" />
 
         </RadioGroup>
@@ -52,19 +66,21 @@
             android:layout_marginTop="32dp"
             android:gravity="center"
             android:text="Select Route Type:"
+            android:textColor="#091452"
             android:textSize="30sp" />
 
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical">
 
             <RadioButton
                 android:id="@+id/radioButton3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Round Trip From Current Location"
+                android:textColor="#091452"
                 android:textSize="18sp" />
 
             <RadioButton
@@ -72,6 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="On Route To Location"
+                android:textColor="#091452"
                 android:textSize="18sp" />
         </RadioGroup>
     </LinearLayout>
