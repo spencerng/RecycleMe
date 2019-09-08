@@ -40,7 +40,13 @@ public class VisionProcessor {
                     .addOnSuccessListener(new OnSuccessListener<List<FirebaseVisionImageLabel>>() {
                         @Override
                         public void onSuccess(List<FirebaseVisionImageLabel> labels) {
-                            cb.onVisionProcessingDone(labels);
+                            String display = "";
+                            for (FirebaseVisionImageLabel label : labels) {
+                                display += label.getText() + ": " + label.getConfidence() + "\n";
+                            }
+
+                            cb.displayLabels(display);
+                            //cb.fetchRecycleCenters(labels);
                         }
                     });
 
@@ -53,7 +59,9 @@ public class VisionProcessor {
     }
 
     public interface Callback {
-        void onVisionProcessingDone(List<FirebaseVisionImageLabel> labels);
+        void displayLabels(String displayText);
+
+        void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels);
     }
 
 }

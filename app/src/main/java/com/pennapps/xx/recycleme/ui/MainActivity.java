@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -120,46 +119,35 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, Object startLocation, Object endLocation) {
         final ArrayList<RecyclableObject> items = new ArrayList<>();
 
-        try {
-            VisionProcessor vp = new VisionProcessor(getApplicationContext(), imageFilePath);
 
-            vp.process(new VisionProcessor.Callback() {
-                @Override
-                public void onVisionProcessingDone(List<FirebaseVisionImageLabel> itemLabels) {
+        VisionProcessor vp = new VisionProcessor(getApplicationContext(), imageFilePath);
 
-                    try {
-                        String display = "";
-                        for (FirebaseVisionImageLabel label : itemLabels) {
-                            display += label.getText() + ": " + label.getConfidence() + "\n";
-                        }
-                        Log.i("tag", display);
-
-                        final String display2 = display;
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                resultView.setText(display2);
-                            }
-                        });
-
-                        // Extract this from start location later
-                        String zipCode = "08902";
-
-
-                        for (FirebaseVisionImageLabel itemLabel : itemLabels) {
-                            items.add(new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get()));
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        vp.process(new VisionProcessor.Callback() {
+            @Override
+            public void displayLabels(final String displayText) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultView.setText(displayText);
                     }
+                });
+            }
+
+            @Override
+            public void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels) {
+                try {
+                    // Extract this from start location later
+                    String zipCode = "08902";
+
+
+                    for (FirebaseVisionImageLabel itemLabel : itemLabels) {
+                        items.add(new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get()));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+            }
+        });
 
         return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
     }
