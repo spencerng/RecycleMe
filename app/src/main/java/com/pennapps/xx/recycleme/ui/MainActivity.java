@@ -201,6 +201,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ArrayList<RecycleCenter> centersToPass = sortCenters(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
+        for (RecycleCenter center : centersToPass){
+            center.userFacingString(filterItems());
+        }
+
 
         // Create intent filter here
         Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);
