@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Create intent filter here
         Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);
-        // toResult.putExtra("rcenters", centersToPass);
+        toResult.putExtra("rcenters", centersToPass);
         MainActivity.this.startActivity(toResult);
 
     }

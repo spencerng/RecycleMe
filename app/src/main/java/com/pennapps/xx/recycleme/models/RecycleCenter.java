@@ -1,10 +1,13 @@
 package com.pennapps.xx.recycleme.models;
 
 import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-public class RecycleCenter {
+
+public class RecycleCenter implements Parcelable {
 
     private String address;
     private ArrayList<String> materialTypes;
@@ -16,6 +19,25 @@ public class RecycleCenter {
         this.materialTypes = materialTypes;
         this.name = name;
         this.centerType = centerType;
+    }
+
+    public static final Creator<RecycleCenter> CREATOR = new Creator<RecycleCenter>() {
+        @Override
+        public RecycleCenter createFromParcel(Parcel in) {
+            return new RecycleCenter(in);
+        }
+
+        @Override
+        public RecycleCenter[] newArray(int size) {
+            return new RecycleCenter[size];
+        }
+    };
+
+    protected RecycleCenter(Parcel in) {
+        address = in.readString();
+        materialTypes = in.createStringArrayList();
+        name = in.readString();
+        centerType = in.readString();
     }
 
     public String getAddress() {
@@ -36,5 +58,18 @@ public class RecycleCenter {
 
     public String getCenterType() {
         return centerType;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(address);
+        parcel.writeStringList(materialTypes);
+        parcel.writeString(name);
+        parcel.writeString(centerType);
     }
 }
