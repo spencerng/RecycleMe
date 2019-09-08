@@ -1,10 +1,17 @@
 package com.pennapps.xx.recycleme.models;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class RecycleCenter implements Parcelable {
@@ -88,5 +95,29 @@ public class RecycleCenter implements Parcelable {
         parcel.writeStringList(materialTypes);
         parcel.writeString(name);
         parcel.writeString(centerType);
+    }
+
+    public LatLng getLatLng(Context context) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            // May throw an IOException
+            address = coder.getFromLocationName(this.address, 5);
+            if (address == null) {
+                return null;
+            }
+
+            Address location = address.get(0);
+            p1 = new LatLng(location.getLatitude(), location.getLongitude());
+
+        } catch (IOException ex) {
+
+            ex.printStackTrace();
+        }
+
+        return p1;
     }
 }

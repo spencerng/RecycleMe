@@ -51,25 +51,35 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
 
         try {
-            LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
-            LatLng endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
-            googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
-            googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Final Destination"));
+            for (int i = 0; i < centers.size() - 1; i++) {
+                LatLng startLatLng = centers.get(i).getLatLng(getContext());
+                LatLng endLatLng = centers.get(i + 1).getLatLng(getContext());
+                if (i == 0) {
+                    startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
+                    endLatLng = centers.get(0).getLatLng(getContext());
+                }
+                if (i == centers.size() - 2) {
+                    endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
+                }
+
+                googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
+                googleMap.addMarker(new MarkerOptions().position(endLatLng).title("Final Destination"));
 
 
-            GMapV2Direction md = new GMapV2Direction(startLatLng, endLatLng, GMapV2Direction.MODE_DRIVING);
+                GMapV2Direction md = new GMapV2Direction(startLatLng, endLatLng, GMapV2Direction.MODE_DRIVING);
 
-            Document doc = md.execute().get();
+                Document doc = md.execute().get();
 
-            ArrayList<LatLng> directionPoint = md.getDirection(doc);
-            PolylineOptions rectLine = new PolylineOptions().width(3).color(
-                    Color.BLUE);
+                ArrayList<LatLng> directionPoint = md.getDirection(doc);
+                PolylineOptions rectLine = new PolylineOptions().width(3).color(
+                        Color.RED);
 
-            for (int i = 0; i < directionPoint.size(); i++) {
-                rectLine.add(directionPoint.get(i));
+                for (int j = 0; j < directionPoint.size(); i++) {
+                    rectLine.add(directionPoint.get(i));
+                }
+                Polyline polyline = googleMap.addPolyline(rectLine);
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
             }
-            Polyline polyline = googleMap.addPolyline(rectLine);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
         } catch (Exception e) {
             e.printStackTrace();
         }
