@@ -195,18 +195,14 @@ public class MainActivity extends AppCompatActivity {
             RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel, currentLocation.getLatitude(), currentLocation.getLongitude());
             try {
                 ArrayList<RecycleCenter> recycleCenters = rcf.execute().get();
-                for (RecycleCenter center : recycleCenters) {
-                    ArrayList<String> s = new ArrayList<String>();
-                    s.add(itemLabel);
-                    center.userFacingString(s);
-                }
+
                 recyclableObjects.add(new RecyclableObject(itemLabel, recycleCenters));
             } catch (Exception e) {
 
             }
         }
 
-        ArrayList<RecycleCenter> centersToPass = sortCenters(RecycleCenterFinder.commonCenters(recyclableObjects), currentLocation, currentLocation);
+        ArrayList<RecycleCenter> centersToPass = RecycleCenterFinder.commonCenters(recyclableObjects);
         Log.i("size", "." + centersToPass.size());
         // Create intent filter here
         Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);

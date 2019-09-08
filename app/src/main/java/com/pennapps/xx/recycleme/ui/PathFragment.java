@@ -49,29 +49,24 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        ArrayList<LatLng> locs = new ArrayList<>();
+        LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
+        LatLng endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
+        locs.add(startLatLng);
+        for (RecycleCenter center : centers) {
+            locs.add(center.getLatLng(getContext()));
+            googleMap.addMarker(new MarkerOptions().position(center.getLatLng(getContext())).title(center.getName()));
+        }
 
+        googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
+        googleMap.addMarker(new MarkerOptions().position(endLatLng).title("Work"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
+        googleMap.moveCamera(CameraUpdateFactory.zoomTo(10.0f));
         try {
-            for (int i = 0; i <= centers.size(); i++) {
-                LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
-                LatLng endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
-                if (i == 0) {
-                    startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
-                    endLatLng = centers.get(0).getLatLng(getContext());
-                    googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
-                } else if (i != centers.size() - 1) {
-                    startLatLng = centers.get(i).getLatLng(getContext());
-                    googleMap.addMarker(new MarkerOptions().position(startLatLng).title(centers.get(i).getName()));
-                }
-                if (i == centers.size() && i != 0) {
-                    startLatLng = centers.get(centers.size() - 1).getLatLng(getContext());
-                    endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
-                    googleMap.addMarker(new MarkerOptions().position(endLatLng).title("Work"));
-                } else if (i != 0) {
-                    endLatLng = centers.get(i + 1).getLatLng(getContext());
-                }
+            for (int i = 0; i < locs.size() - 1; i++) {
 
 
-                GMapV2Direction md = new GMapV2Direction(startLatLng, endLatLng, GMapV2Direction.MODE_WALKING);
+                GMapV2Direction md = new GMapV2Direction(locs.get(i), locs.get(i + 1), GMapV2Direction.MODE_WALKING);
 
                 Document doc = md.execute().get();
 
@@ -79,12 +74,14 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
                 PolylineOptions rectLine = new PolylineOptions().width(50).color(
                         Color.RED);
 
-                for (int j = 0; j < directionPoint.size(); j++) {
-                    rectLine.add(directionPoint.get(j));
-                }
+                rectLine.add(locs.get(i), locs.get(i + 1));
+
+
+//                for (int j = 0; j < directionPoint.size(); j++) {
+//                    rectLine.add(directionPoint.get(j));
+//                }
                 Polyline polyline = googleMap.addPolyline(rectLine);
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
-                googleMap.moveCamera(CameraUpdateFactory.zoomTo(10.0f));
+
 
             }
         } catch (Exception e) {

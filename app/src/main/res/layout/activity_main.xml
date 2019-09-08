@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#7C84ECC6"
     android:gravity="center"
-    android:ignoreGravity="false"
+
     tools:context=".ui.MainActivity">
 
 
@@ -61,6 +61,20 @@
         android:scaleType="centerInside"
         android:scaleX="4.5"
         android:scaleY="4.5"
-        tools:srcCompat="@mipmap/ic_launcher_foreground" />
+        tools:srcCompat="@mipmap/ic_launcher" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:foregroundGravity="center"
+        android:scaleType="centerInside"
+        android:scaleX="4.5"
+        android:scaleY="4.5"
+        android:visibility="gone"
+        tools:srcCompat="@mipmap/ic_launcher" />
 
 </RelativeLayout>
