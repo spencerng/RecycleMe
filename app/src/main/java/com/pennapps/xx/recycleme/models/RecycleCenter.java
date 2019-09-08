@@ -120,4 +120,20 @@ public class RecycleCenter implements Parcelable {
 
         return p1;
     }
+
+    //takes items from ArrayList of scanned things that this center takes and outputs as string
+    public String userFacingString(ArrayList<String> items) {
+        String output = "";
+
+        for (String item : items) {
+            output = output + item;
+            if (items.indexOf(item) != items.size() - 1) { //if item is not last item
+                output = output + ", ";
+            }
+        }
+        return output;
+    }
+
+
+
 }

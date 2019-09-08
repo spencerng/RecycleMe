@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -20,12 +19,9 @@ import java.util.ArrayList;
 public class ListFragment extends Fragment {
     public ListFragment(){}
 
+
     ArrayList<RecycleCenter> centers;
-    // ArrayList<String> items1 = new ArrayList<String>(Arrays.asList("Lightbulb", "Cable") );
-    // ArrayList<String> items2 = new ArrayList<String>(Arrays.asList("Shoe", "Electronics") );
-    /*= new ArrayList<RecycleCenter>(Arrays.asList(new RecycleCenter
-                    ("Center 1", "100 Technology Drive, Edison, NJ, 08837","Drop-Off", items1),
-                new RecycleCenter("Center 2", "123 Ho Plaza, Ithaca, NY, 14853", "Drop-Off", items2)));*/
+
     RelativeLayout centerContainer;
 
     public ListFragment(ArrayList<RecycleCenter> centersList) {
@@ -53,10 +49,9 @@ public class ListFragment extends Fragment {
 
         int lastId = 0;
         boolean firstTime = true;
-        centers = new ArrayList<>();
-        Toast.makeText(getContext(), Integer.toString(centers.size()),Toast.LENGTH_SHORT).show();
 
 
+        int num = 1;
         for (RecycleCenter center : centers) {
             RCView av = new RCView (getContext(), null);
             int currentId = View.generateViewId();
@@ -70,10 +65,10 @@ public class ListFragment extends Fragment {
 
             name.setText(center.getName());
             address.setText(center.getAddress());
-            items.setText("Items List");
+            items.setText("Lightbulb, Cable");
             distance.setText(center.getDrivingDistance(MainActivity.currentLocation) + "mi");
             //distance.setText("2.0 mi");
-            number.setText(centers.indexOf(center)+1);
+            number.setText(Integer.toString(num++));
 
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             if (!firstTime)
