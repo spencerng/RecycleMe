@@ -11,15 +11,38 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class RecycleCenterFinder extends AsyncTask<String, Void, ArrayList<RecycleCenter>> {
+public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<RecycleCenter>> {
 
-    public ArrayList<RecycleCenter> doInBackground(String... params) {
+    String zipCode;
+    double latitude, longitude;
+
+    String item;
+
+    public RecycleCenterFinder(String item, String zipCode) {
+        this.zipCode = zipCode;
+        this.item = item;
+    }
+
+    public RecycleCenterFinder(String item, double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.item = item;
+    }
+
+    public ArrayList<RecycleCenter> doInBackground(Void... params) {
 
         ArrayList<RecycleCenter> locations = new ArrayList<>();
         String baseUrl = "https://search.earth911.com/";
 
+        String searchUrl = baseUrl + "?what=" + item;
+
         try {
-            String searchUrl = baseUrl + "?what=" + params[0] + "&where=" + params[1] + "&list_filter=all&max_distance=50";
+
+            if (zipCode != null) {
+                searchUrl += "&where=" + zipCode;
+            } else {
+                searchUrl += "&latitude" + latitude + "&longitude" + longitude + "&list_filter=all&max_distance=50";
+            }
 
             Document doc = Jsoup.connect(searchUrl).get();
             for (Element resultItem : doc.getElementsByClass("result-item")) {
