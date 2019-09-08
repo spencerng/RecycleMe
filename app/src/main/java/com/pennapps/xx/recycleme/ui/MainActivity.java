@@ -27,7 +27,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
 import com.pennapps.xx.recycleme.R;
-import com.pennapps.xx.recycleme.data.DistanceOptimizer;
+import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
 import com.pennapps.xx.recycleme.data.VisionProcessor;
 import com.pennapps.xx.recycleme.models.RecyclableObject;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
@@ -152,11 +152,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels) {
+            public void fetchItemLabels(List<FirebaseVisionImageLabel> itemLabels) {
                 try {
                     labels = itemLabels;
                     if (locationFetched) {
-
+                        fetchRecycleCenters();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
                     currentLocation = location;
                     if (labelsFetched) {
-
+                        fetchRecycleCenters();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -186,14 +186,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void fetchRecycleCenters() {
+        ArrayList<String> itemLabels = filterItems();
+        ArrayList<RecyclableObject> recyclableObjects = new ArrayList<>();
+        for (String itemLabel : itemLabels) {
+            RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel, currentLocation.getLatitude(), currentLocation.getLongitude());
+            try {
+                ArrayList<RecycleCenter> recycleCenters = rcf.execute().get();
+                recyclableObjects.add(new RecyclableObject(itemLabel, recycleCenters));
+            } catch (Exception e) {
+
+            }
+        }
+
+        ArrayList<RecycleCenter> centersToPass = getMinDistance(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
+
+        // Create intent filter here
 
     }
 
-    public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, final Location startLocation, Location endLocation) {
+    public ArrayList<String> filterItems() {
+        ArrayList<String> detectedItems = new ArrayList<>();
 
-        return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, new ArrayList<RecyclableObject>());
+        for (FirebaseVisionImageLabel label : labels) {
+
+        }
+        return new ArrayList<>();
     }
 
+    public ArrayList<RecycleCenter> consolidateCenters(ArrayList<RecyclableObject> recyclableObjects) {
+        return new ArrayList<>();
+    }
+
+    public ArrayList<RecycleCenter> getMinDistance(ArrayList<RecycleCenter> centers, Location startPoint, Location endPoint) {
+        return new ArrayList<>();
+    }
 
 
 
