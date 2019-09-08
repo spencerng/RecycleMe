@@ -15,7 +15,6 @@ import com.pennapps.xx.recycleme.R;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ResultsActivity extends AppCompatActivity {
@@ -30,11 +29,11 @@ public class ResultsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         rcenters = intent.getParcelableArrayListExtra("rcenters");
 
-        ArrayList<String> items1 = new ArrayList<String>(Arrays.asList("Lightbulb", "Cable"));
-        ArrayList<String> items2 = new ArrayList<String>(Arrays.asList("Shoe", "Electronics"));
-        rcenters = new ArrayList<RecycleCenter>(Arrays.asList(new RecycleCenter
-                        ("Center 1", "100 Technology Drive, Edison, NJ 08837", "Drop-Off", items1),
-                new RecycleCenter("Center 2", "123 Ho Plaza, Ithaca, NY 14853", "Drop-Off", items2)));
+//        ArrayList<String> items1 = new ArrayList<String>(Arrays.asList("Lightbulb", "Cable"));
+//        ArrayList<String> items2 = new ArrayList<String>(Arrays.asList("Shoe", "Electronics"));
+//        rcenters = new ArrayList<RecycleCenter>(Arrays.asList(new RecycleCenter
+//                        ("Center 1", "100 Technology Drive, Edison, NJ 08837", "Drop-Off", items1),
+//                new RecycleCenter("Center 2", "123 Ho Plaza, Ithaca, NY 14853", "Drop-Off", items2)));
 
         viewPager = findViewById(R.id.pager);
         setupViewPager(viewPager);

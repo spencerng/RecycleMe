@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,9 +31,6 @@ import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
 import com.pennapps.xx.recycleme.data.VisionProcessor;
 import com.pennapps.xx.recycleme.models.RecyclableObject;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
@@ -205,10 +201,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ArrayList<RecycleCenter> centersToPass = sortCenters(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
-        for (RecycleCenter center : centersToPass){
-            center.userFacingString(filterItems());
-        }
-
 
         // Create intent filter here
         Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);
@@ -218,34 +210,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public ArrayList<String> filterItems() {
-        ArrayList<String> detectedItems = new ArrayList<>();
 
+        ArrayList<String> items = new ArrayList<>();
+        for (FirebaseVisionImageLabel label : labels) {
+            items.add(label.getText());
+        }
+        return items;
 
-        String baseUrl = "https://search.earth911.com/";
-        for (FirebaseVisionImageLabel label : labels){
-
-            String item = label.getText();
-            String searchUrl = baseUrl + "?what=" + item;
-
-            try {
-
-                if (zipCode != null) {
-                    searchUrl += "&where=" + zipCode + "&list_filter=all&max_distance=50";
-                } else {
-                    searchUrl += "&latitude=" + latitude + "&longitude=" + longitude + "&list_filter=all&max_distance=50";
-                }
-
-                Document doc = Jsoup.connect(searchUrl).get();
-                if (doc.getElementsByClass("result-item") != null){
-                    detectedItems.add(label.getText());
-                }
-            } catch (IOException e) {
-        e.printStackTrace();
-    }
-}
-
-
-        return new ArrayList<>();
     }
 
     public ArrayList<RecycleCenter> consolidateCenters(ArrayList<RecyclableObject> recyclableObjects) {
@@ -253,9 +224,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public ArrayList<RecycleCenter> sortCenters(ArrayList<RecycleCenter> centers, Location startPoint, Location endPoint) {
-        return new ArrayList<>();
+        return centers;
     }
-
 
 
 }

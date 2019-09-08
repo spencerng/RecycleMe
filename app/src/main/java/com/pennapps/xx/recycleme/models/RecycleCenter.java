@@ -52,8 +52,16 @@ public class RecycleCenter implements Parcelable {
         return address;
     }
 
-    public double getDrivingDistance(Location fromThisLocation) {
-        return 0.0;
+    public Location getLocation(Context c) {
+        Location loc = new Location("");
+        loc.setLongitude(getLatLng(c).longitude);
+        loc.setLatitude(getLatLng(c).latitude);
+        return loc;
+    }
+
+    public double getDrivingDistance(Location fromThisLocation, Context c) {
+        return getLocation(c).distanceTo(fromThisLocation) / 1609.344;
+        //Return miles
     }
 
     public void deleteItems(ArrayList<String> itemNames){
@@ -124,19 +132,19 @@ public class RecycleCenter implements Parcelable {
 
     //takes items from ArrayList things, keeps only what center takes, then converts ArrayList to string
 
-        public void userFacingString(ArrayList<String> items){
+    public void userFacingString(ArrayList<String> items) {
         String output = "";
 
-        for (String item:items){
+        for (String item : items) {
             if (isRecyclableHere(item)) {
                 output = output + item + ", ";
             }
         }
-        output = output.substring(0, output.length()-2);
-        itemsThatMatter=output;
+        output = output.substring(0, output.length() - 2);
+        itemsThatMatter = output;
     }
 
-    public String getItemsThatMatter(){
+    public String getItemsThatMatter() {
         return itemsThatMatter;
     }
 
