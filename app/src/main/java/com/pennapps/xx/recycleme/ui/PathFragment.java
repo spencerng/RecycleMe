@@ -1,5 +1,6 @@
 package com.pennapps.xx.recycleme.ui;
 
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,8 +16,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.pennapps.xx.recycleme.R;
+import com.pennapps.xx.recycleme.data.GMapV2Direction;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
+
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 
@@ -44,9 +50,24 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        // Add a marker in Sydney, Australia, and move the camera.
-        LatLng sydney = new LatLng(-34, 151);
-        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
+        LatLng endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
+        googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
+        googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Final Destination"));
+
+
+        GMapV2Direction md = new GMapV2Direction();
+
+        Document doc = md.getDocument(startLatLng, endLatLng, GMapV2Direction.MODE_DRIVING);
+
+        ArrayList<LatLng> directionPoint = md.getDirection(doc);
+        PolylineOptions rectLine = new PolylineOptions().width(3).color(
+                Color.BLUE);
+
+        for (int i = 0; i < directionPoint.size(); i++) {
+            rectLine.add(directionPoint.get(i));
+        }
+        Polyline polyline = googleMap.addPolyline(rectLine);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
     }
 }

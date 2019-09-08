@@ -1,6 +1,7 @@
 package com.pennapps.xx.recycleme.ui;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,7 +41,10 @@ public class ResultsActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new ListFragment(), "LIST");
-        adapter.addFragment(new PathFragment(), "MAP");
+        Location endpoint = new Location("Work");
+        endpoint.setLatitude(40.2978707);
+        endpoint.setLongitude(-75.6562311);
+        adapter.addFragment(new PathFragment(MainActivity.currentLocation, endpoint, rcenters), "MAP");
         viewPager.setAdapter(adapter);
     }
 
