@@ -46,7 +46,7 @@ public class VisionProcessor {
                             }
 
                             cb.displayLabels(display);
-                            //cb.fetchRecycleCenters(labels);
+                            cb.fetchRecycleCenters(labels);
                         }
                     });
 

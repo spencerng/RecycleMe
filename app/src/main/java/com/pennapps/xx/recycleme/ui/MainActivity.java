@@ -6,10 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -20,6 +23,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
 import com.pennapps.xx.recycleme.R;
 import com.pennapps.xx.recycleme.data.DistanceOptimizer;
@@ -32,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
@@ -40,11 +47,14 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     String imageFilePath;
     TextView resultView;
+    String zipCode;
+    double latitude, longitude;
 
     private static void verifyPermissions(Activity activity) {
         // Check if the app has write permission
         int[] permissions = new int[]{ActivityCompat.checkSelfPermission(activity,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE), ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)};
+                Manifest.permission.WRITE_EXTERNAL_STORAGE), ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA), ActivityCompat.checkSelfPermission(activity,
+                Manifest.permission.ACCESS_FINE_LOCATION)};
 
         for (int permission : permissions) {
             if (permission != PackageManager.PERMISSION_GRANTED) {
@@ -52,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 // App doesn't have permission so prompt the user
                 int requestStorageCode = 1;
                 String[] storagePermissions = {Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION};
 
                 ActivityCompat.requestPermissions(activity, storagePermissions, requestStorageCode);
             }
@@ -65,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         verifyPermissions(this);
 
-        new RecycleCenterFinder().execute("calculator", "08902");
         btn = findViewById(R.id.button1);
         settings = findViewById(R.id.button);
         imageView = findViewById(R.id.imageView);
@@ -120,6 +129,23 @@ public class MainActivity extends AppCompatActivity {
         final ArrayList<RecyclableObject> items = new ArrayList<>();
 
 
+        FusedLocationProviderClient locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        locationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                try {
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+
+                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                    zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
+                    Log.i("zip", zipCode);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         VisionProcessor vp = new VisionProcessor(getApplicationContext(), imageFilePath);
 
         vp.process(new VisionProcessor.Callback() {
@@ -137,11 +163,11 @@ public class MainActivity extends AppCompatActivity {
             public void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels) {
                 try {
                     // Extract this from start location later
-                    String zipCode = "08902";
-
 
                     for (FirebaseVisionImageLabel itemLabel : itemLabels) {
-                        items.add(new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get()));
+                        RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel.getText(), latitude, longitude);
+
+                        items.add(new RecyclableObject(itemLabel.getText(), rcf.execute().get()));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
