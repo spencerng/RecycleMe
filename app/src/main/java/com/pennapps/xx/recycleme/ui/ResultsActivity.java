@@ -26,7 +26,7 @@ public class ResultsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
         Intent intent = getIntent();
-      //  centers = intent.getSerializableExtra("rcenters");
+        rcenters = intent.getParcelableArrayListExtra("rcenters");
 
         viewPager = findViewById(R.id.pager);
         setupViewPager(viewPager);

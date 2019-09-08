@@ -1,5 +1,6 @@
 package com.pennapps.xx.recycleme.ui;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +70,7 @@ public class ListFragment extends Fragment {
             name.setText(center.getName());
             address.setText(center.getAddress());
             items.setText("Items List");
-            distance.setText(center.getDrivingDistance(new Object()) + "mi");
+            distance.setText(center.getDrivingDistance(new Location())+ "mi");
             //distance.setText("2.0 mi");
             number.setText(centers.indexOf(center)+1);
 
