@@ -37,7 +37,7 @@ public class ResultsActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new ListFragment(), "LIST");
-        adapter.addFragment(new MapFragment(), "MAP");
+        adapter.addFragment(new PathFragment(), "MAP");
         viewPager.setAdapter(adapter);
     }
 
