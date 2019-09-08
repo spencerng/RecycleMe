@@ -2,7 +2,6 @@ package com.pennapps.xx.recycleme.ui;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,11 +10,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -32,6 +31,7 @@ import com.pennapps.xx.recycleme.models.RecycleCenter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public int REQUEST_IMAGE_CAPTURE = 1;
     ImageView imageView;
     String imageFilePath;
+    TextView resultView;
 
     private static void verifyPermissions(Activity activity) {
         // Check if the app has write permission
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         btn = findViewById(R.id.button1);
         settings = findViewById(R.id.button);
         imageView = findViewById(R.id.imageView);
+        resultView = findViewById(R.id.resultView);
         btn.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
@@ -115,32 +117,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, Object startLocation, Object endLocation) {
-        ArrayList<RecyclableObject> items = new ArrayList<>();
+        final ArrayList<RecyclableObject> items = new ArrayList<>();
 
-        try {
-            ArrayList<FirebaseVisionImageLabel> itemLabels = new VisionProcessor(getApplicationContext(), imageFilePath).execute().get();
-            String display = "";
 
-            for (FirebaseVisionImageLabel label : itemLabels) {
-                display += label.getText() + ": " + label.getConfidence() + "\n";
+        VisionProcessor vp = new VisionProcessor(getApplicationContext(), imageFilePath);
+
+        vp.process(new VisionProcessor.Callback() {
+            @Override
+            public void displayLabels(final String displayText) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        resultView.setText(displayText);
+                    }
+                });
             }
 
-            Log.i("tag", display);
-            new AlertDialog.Builder(this)
-                    .setMessage(display)
-                    .setPositiveButton(android.R.string.yes, null)
-                    .show();
-
-            // Extract this from start location later
-            String zipCode = "08902";
+            @Override
+            public void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels) {
+                try {
+                    // Extract this from start location later
+                    String zipCode = "08902";
 
 
-            for (FirebaseVisionImageLabel itemLabel : itemLabels) {
-                items.add(new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get()));
+                    for (FirebaseVisionImageLabel itemLabel : itemLabels) {
+                        items.add(new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get()));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
 
         return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
     }
