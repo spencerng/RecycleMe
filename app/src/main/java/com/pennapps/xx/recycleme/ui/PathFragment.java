@@ -51,28 +51,32 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
 
         try {
-            for (int i = 0; i < centers.size() - 1; i++) {
-                LatLng startLatLng = centers.get(i).getLatLng(getContext());
-                LatLng endLatLng = centers.get(i + 1).getLatLng(getContext());
+            for (int i = 0; i <= centers.size(); i++) {
+                LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
+                LatLng endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
                 if (i == 0) {
                     startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
                     endLatLng = centers.get(0).getLatLng(getContext());
                     googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
-                } else {
+                } else if (i != centers.size() - 1) {
+                    startLatLng = centers.get(i).getLatLng(getContext());
                     googleMap.addMarker(new MarkerOptions().position(startLatLng).title(centers.get(i).getName()));
                 }
-                if (i == centers.size() - 2) {
+                if (i == centers.size() && i != 0) {
+                    startLatLng = centers.get(centers.size() - 1).getLatLng(getContext());
                     endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
                     googleMap.addMarker(new MarkerOptions().position(endLatLng).title("Work"));
+                } else if (i != 0) {
+                    endLatLng = centers.get(i + 1).getLatLng(getContext());
                 }
 
 
-                GMapV2Direction md = new GMapV2Direction(startLatLng, endLatLng, GMapV2Direction.MODE_DRIVING);
+                GMapV2Direction md = new GMapV2Direction(startLatLng, endLatLng, GMapV2Direction.MODE_WALKING);
 
                 Document doc = md.execute().get();
 
                 ArrayList<LatLng> directionPoint = md.getDirection(doc);
-                PolylineOptions rectLine = new PolylineOptions().width(3).color(
+                PolylineOptions rectLine = new PolylineOptions().width(50).color(
                         Color.RED);
 
                 for (int j = 0; j < directionPoint.size(); j++) {
@@ -80,6 +84,8 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
                 }
                 Polyline polyline = googleMap.addPolyline(rectLine);
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
+                googleMap.moveCamera(CameraUpdateFactory.zoomTo(10.0f));
+
             }
         } catch (Exception e) {
             e.printStackTrace();

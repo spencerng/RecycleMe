@@ -31,8 +31,17 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
         this.item = item;
     }
 
-    public static ArrayList<RecycleCenter> commonCenters(ArrayList<RecyclableObject> items){
-        ArrayList<String> itemNames = new ArrayList<>();
+    public static ArrayList<RecycleCenter> commonCenters(ArrayList<RecyclableObject> items) {
+        ArrayList<RecycleCenter> centers = new ArrayList<>();
+
+        for (RecyclableObject item : items) {
+            centers.add(item.getCenters().get(0));
+        }
+
+        return centers;
+
+        //This is the real algo - not sure if working
+        /*ArrayList<String> itemNames = new ArrayList<>();
         ArrayList<RecycleCenter> allCenters = new ArrayList<>();
         ArrayList<Integer> correspondingNumbers = new ArrayList<>();
         ArrayList<RecycleCenter> finalList = new ArrayList<>();
@@ -81,7 +90,7 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
         //delete associated objects from itemnames
         //see if remaining objects are in any locations together
         //else put top locations for each individual object
-    return finalList;
+        return finalList;*/
     }
 
     public ArrayList<RecycleCenter> doInBackground(Void... params) {

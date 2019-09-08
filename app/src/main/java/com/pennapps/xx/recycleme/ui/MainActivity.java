@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -178,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
                     zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
                     currentLocation = location;
                     if (labelsFetched) {
-                        fetchRecycleCenters();
+                        //fetchRecycleCenters();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -194,14 +195,19 @@ public class MainActivity extends AppCompatActivity {
             RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel, currentLocation.getLatitude(), currentLocation.getLongitude());
             try {
                 ArrayList<RecycleCenter> recycleCenters = rcf.execute().get();
+                for (RecycleCenter center : recycleCenters) {
+                    ArrayList<String> s = new ArrayList<String>();
+                    s.add(itemLabel);
+                    center.userFacingString(s);
+                }
                 recyclableObjects.add(new RecyclableObject(itemLabel, recycleCenters));
             } catch (Exception e) {
 
             }
         }
 
-        ArrayList<RecycleCenter> centersToPass = sortCenters(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
-
+        ArrayList<RecycleCenter> centersToPass = sortCenters(RecycleCenterFinder.commonCenters(recyclableObjects), currentLocation, currentLocation);
+        Log.i("size", "." + centersToPass.size());
         // Create intent filter here
         Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);
         toResult.putExtra("rcenters", centersToPass);
@@ -212,8 +218,33 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<String> filterItems() {
 
         ArrayList<String> items = new ArrayList<>();
+        String[] cfcLabels = new String[]{"Light", "Lighting", "Compact fluorescent lamp", "Light bulb"};
+        String[] calculatorLabels = new String[]{"Technology", "Electronic device", "Office equipment", "Calculator"};
+        String[] clothesLabels = new String[]{"Footwear", "Fashion accessory", "Sock", "Shoe", "T-shirt", "Shirt"};
+        String[] bottleLabels = new String[]{"Water bottle", "Bottle", "Drinkware", "Drink", "Pink", "Magenta"};
+
         for (FirebaseVisionImageLabel label : labels) {
-            items.add(label.getText());
+            for (String testLabel : cfcLabels) {
+                if (label.getText().equals(testLabel) && label.getConfidence() > 0.5 && !items.contains("Compact Fluorescent Lamp")) {
+                    items.add("Compact Fluorescent Lamp");
+                }
+            }
+            for (String testLabel : calculatorLabels) {
+                if (label.getText().equals(testLabel) && label.getConfidence() > 0.5 && !items.contains("Calculator")) {
+                    items.add("Calculator");
+                }
+            }
+            for (String testLabel : clothesLabels) {
+                if (label.getText().equals(testLabel) && label.getConfidence() > 0.5 && !items.contains("Clothing")) {
+                    items.add("Clothing");
+                }
+            }
+            for (String testLabel : bottleLabels) {
+                if (label.getText().equals(testLabel) && label.getConfidence() > 0.5 && !items.contains("Plastic Beverage Bottle")) {
+                    items.add("Plastic Beverage Bottle");
+                }
+            }
+
         }
         return items;
 
