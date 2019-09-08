@@ -50,24 +50,28 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
-        LatLng endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
-        googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
-        googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Final Destination"));
+        try {
+            LatLng startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
+            LatLng endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
+            googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
+            googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Final Destination"));
 
 
-        GMapV2Direction md = new GMapV2Direction();
+            GMapV2Direction md = new GMapV2Direction(startLatLng, endLatLng, GMapV2Direction.MODE_DRIVING);
 
-        Document doc = md.getDocument(startLatLng, endLatLng, GMapV2Direction.MODE_DRIVING);
+            Document doc = md.execute().get();
 
-        ArrayList<LatLng> directionPoint = md.getDirection(doc);
-        PolylineOptions rectLine = new PolylineOptions().width(3).color(
-                Color.BLUE);
+            ArrayList<LatLng> directionPoint = md.getDirection(doc);
+            PolylineOptions rectLine = new PolylineOptions().width(3).color(
+                    Color.BLUE);
 
-        for (int i = 0; i < directionPoint.size(); i++) {
-            rectLine.add(directionPoint.get(i));
+            for (int i = 0; i < directionPoint.size(); i++) {
+                rectLine.add(directionPoint.get(i));
+            }
+            Polyline polyline = googleMap.addPolyline(rectLine);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        Polyline polyline = googleMap.addPolyline(rectLine);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
     }
 }
