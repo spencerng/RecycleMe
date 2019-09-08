@@ -1,5 +1,7 @@
 package com.pennapps.xx.recycleme.models;
 
+import android.location.Location;
+
 import java.util.ArrayList;
 
 public class RecycleCenter {
@@ -20,7 +22,7 @@ public class RecycleCenter {
         return address;
     }
 
-    public double getDrivingDistance(Object fromThisLocation) {
+    public double getDrivingDistance(Location fromThisLocation) {
         return 0.0;
     }
 
