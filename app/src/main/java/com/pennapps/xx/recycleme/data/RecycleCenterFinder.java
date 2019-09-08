@@ -1,6 +1,7 @@
 package com.pennapps.xx.recycleme.data;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.pennapps.xx.recycleme.models.RecycleCenter;
 
@@ -39,9 +40,9 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
         try {
 
             if (zipCode != null) {
-                searchUrl += "&where=" + zipCode;
+                searchUrl += "&where=" + zipCode + "&list_filter=all&max_distance=50";
             } else {
-                searchUrl += "&latitude" + latitude + "&longitude" + longitude + "&list_filter=all&max_distance=50";
+                searchUrl += "&latitude=" + latitude + "&longitude=" + longitude + "&list_filter=all&max_distance=50";
             }
 
             Document doc = Jsoup.connect(searchUrl).get();
@@ -58,6 +59,8 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
                     for (Element material : locationPage.getElementsByClass("material")) {
                         collectedMaterials.add(material.html());
                     }
+
+                    Log.i("tag", item + ": " + address);
 
                     locations.add(new RecycleCenter(name, address, "location", collectedMaterials));
                 }

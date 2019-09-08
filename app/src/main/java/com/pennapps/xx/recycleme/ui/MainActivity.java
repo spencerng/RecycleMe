@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     TextView resultView;
     String zipCode;
     double latitude, longitude;
+    Location currentLocation;
 
     private static void verifyPermissions(Activity activity) {
         // Check if the app has write permission
@@ -125,26 +126,8 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
-    public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, Object startLocation, Object endLocation) {
+    public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, final Location startLocation, Location endLocation) {
         final ArrayList<RecyclableObject> items = new ArrayList<>();
-
-
-        FusedLocationProviderClient locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        locationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                try {
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-
-                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
-                    Log.i("zip", zipCode);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         VisionProcessor vp = new VisionProcessor(getApplicationContext(), imageFilePath);
 
@@ -164,10 +147,17 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     // Extract this from start location later
 
+                    latitude = startLocation.getLatitude();
+                    longitude = startLocation.getLongitude();
+
                     for (FirebaseVisionImageLabel itemLabel : itemLabels) {
                         RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel.getText(), latitude, longitude);
+                        ArrayList<RecycleCenter> centers = rcf.execute().get();
 
-                        items.add(new RecyclableObject(itemLabel.getText(), rcf.execute().get()));
+                        if (!centers.isEmpty()) {
+                            items.add(new RecyclableObject(itemLabel.getText(), centers));
+                            Log.i("center", centers.get(0).getAddress());
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -184,7 +174,22 @@ public class MainActivity extends AppCompatActivity {
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
         Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath, bmOptions);
         imageView.setImageBitmap(bitmap);
-        getSortedRecycleCenters(imageFilePath, null, null);
+
+        FusedLocationProviderClient locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        locationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                try {
+                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                    zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
+
+                    getSortedRecycleCenters(imageFilePath, location, null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
     }
 
 
