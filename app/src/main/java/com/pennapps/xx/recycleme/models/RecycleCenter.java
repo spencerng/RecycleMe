@@ -1,5 +1,7 @@
 package com.pennapps.xx.recycleme.models;
 
+import android.location.Location;
+
 import java.util.ArrayList;
 
 public class RecycleCenter {
@@ -20,8 +22,25 @@ public class RecycleCenter {
         return address;
     }
 
-    public double getDrivingDistance(Object fromThisLocation) {
+    public double getDrivingDistance(Location fromThisLocation) {
         return 0.0;
+    }
+
+    public void deleteItems(ArrayList<String> itemNames){
+        for (String name: itemNames){
+            if (isRecyclableHere(name))
+                itemNames.remove(name);
+        }
+    }
+
+    public int numberOfCommonItems(ArrayList<String> itemNames){
+        int count = 0;
+        for (String name: itemNames){
+            if (isRecyclableHere(name)){
+                count++;
+            }
+        }
+        return count;
     }
 
     public boolean isRecyclableHere(String objectType) {

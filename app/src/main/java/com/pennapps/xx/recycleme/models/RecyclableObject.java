@@ -15,4 +15,5 @@ public class RecyclableObject {
     public ArrayList<RecycleCenter> getCenters(){
         return potentialCenters;
     }
+    public String getLabel(){return label;}
 }

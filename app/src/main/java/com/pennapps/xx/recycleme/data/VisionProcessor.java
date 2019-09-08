@@ -46,7 +46,7 @@ public class VisionProcessor {
                             }
 
                             cb.displayLabels(display);
-                            cb.fetchRecycleCenters(labels);
+                            cb.fetchItemLabels(labels);
                         }
                     });
 
@@ -61,7 +61,7 @@ public class VisionProcessor {
     public interface Callback {
         void displayLabels(String displayText);
 
-        void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels);
+        void fetchItemLabels(List<FirebaseVisionImageLabel> itemLabels);
     }
 
 }

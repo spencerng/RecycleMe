@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,7 +27,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
 import com.pennapps.xx.recycleme.R;
-import com.pennapps.xx.recycleme.data.DistanceOptimizer;
 import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
 import com.pennapps.xx.recycleme.data.VisionProcessor;
 import com.pennapps.xx.recycleme.models.RecyclableObject;
@@ -49,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     TextView resultView;
     String zipCode;
     double latitude, longitude;
+    Location currentLocation;
+    List<FirebaseVisionImageLabel> labels;
+    boolean locationFetched, labelsFetched;
 
     private static void verifyPermissions(Activity activity) {
         // Check if the app has write permission
@@ -75,16 +76,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         verifyPermissions(this);
 
+
+        locationFetched = false;
+        labelsFetched = false;
+
         btn = findViewById(R.id.button1);
         settings = findViewById(R.id.button);
         imageView = findViewById(R.id.imageView);
         resultView = findViewById(R.id.resultView);
         btn.setOnClickListener(new OnClickListener() {
-
             public void onClick(View v) {
-
                 openCameraIntent();
-
             }
         });
         settings.setOnClickListener(new OnClickListener() {
@@ -118,33 +120,23 @@ public class MainActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
         File image = new File(storageDir, "scan.jpg");
-
         imageFilePath = image.getAbsolutePath();
         return image;
     }
 
-    public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, Object startLocation, Object endLocation) {
-        ArrayList<RecyclableObject> items = new ArrayList<>();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath, bmOptions);
+        imageView.setImageBitmap(bitmap);
+        getLabels(imageFilePath);
+        fetchCurrentLocation();
+    }
 
-
-        FusedLocationProviderClient locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        locationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                try {
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-
-                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
-                    Log.i("zip", zipCode);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+    public void getLabels(String imageFilePath) {
+        final ArrayList<RecyclableObject> items = new ArrayList<>();
 
         VisionProcessor vp = new VisionProcessor(getApplicationContext(), imageFilePath);
 
@@ -160,44 +152,75 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels) {
+            public void fetchItemLabels(List<FirebaseVisionImageLabel> itemLabels) {
                 try {
-                    // Extract this from start location later
-
-                    for (FirebaseVisionImageLabel itemLabel : itemLabels) {
-                        RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel.getText(), latitude, longitude);
-
-                        items.add(new RecyclableObject(itemLabel.getText(), rcf.execute().get()));
+                    labels = itemLabels;
+                    if (locationFetched) {
+                        fetchRecycleCenters();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
-            // Extract this from start location later
-            String zipCode = "08902";
 
-            for (FirebaseVisionImageLabel itemLabel : itemLabels) {
-                RecyclableObject r = new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get());
-                if(!(r.getCenters().isEmpty()))
-                    items.add(r);
+    }
+
+    public void fetchCurrentLocation() {
+        FusedLocationProviderClient locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        locationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                try {
+                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                    zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
+                    currentLocation = location;
+                    if (labelsFetched) {
+                        fetchRecycleCenters();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void fetchRecycleCenters() {
+        ArrayList<String> itemLabels = filterItems();
+        ArrayList<RecyclableObject> recyclableObjects = new ArrayList<>();
+        for (String itemLabel : itemLabels) {
+            RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel, currentLocation.getLatitude(), currentLocation.getLongitude());
+            try {
+                ArrayList<RecycleCenter> recycleCenters = rcf.execute().get();
+                recyclableObjects.add(new RecyclableObject(itemLabel, recycleCenters));
+            } catch (Exception e) {
 
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
-        return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
+        ArrayList<RecycleCenter> centersToPass = getMinDistance(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
+
+        // Create intent filter here
+
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath, bmOptions);
-        imageView.setImageBitmap(bitmap);
-        getSortedRecycleCenters(imageFilePath, null, null);
+    public ArrayList<String> filterItems() {
+        ArrayList<String> detectedItems = new ArrayList<>();
+
+        for (FirebaseVisionImageLabel label : labels) {
+
+        }
+        return new ArrayList<>();
     }
+
+    public ArrayList<RecycleCenter> consolidateCenters(ArrayList<RecyclableObject> recyclableObjects) {
+        return new ArrayList<>();
+    }
+
+    public ArrayList<RecycleCenter> getMinDistance(ArrayList<RecycleCenter> centers, Location startPoint, Location endPoint) {
+        return new ArrayList<>();
+    }
+
 
 
 }
