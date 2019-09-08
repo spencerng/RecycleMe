@@ -1,9 +1,12 @@
 package com.pennapps.xx.recycleme.ui;
 
+import android.location.Location;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -13,15 +16,30 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.pennapps.xx.recycleme.R;
+import com.pennapps.xx.recycleme.models.RecycleCenter;
+
+import java.util.ArrayList;
 
 public class PathFragment extends Fragment implements OnMapReadyCallback {
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment = (SupportMapFragment) getActivity().getSupportFragmentManager()
+
+    private ArrayList<RecycleCenter> centers;
+    private Location start, end;
+
+    public PathFragment(Location start, Location end, ArrayList<RecycleCenter> centersList) {
+        this.start = start;
+        this.end = end;
+        centers = centersList;
+    }
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.results_map, container, false);
+        SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        return layout;
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
