@@ -11,4 +11,8 @@ public class RecyclableObject {
         this.label = label;
         this.potentialCenters = potentialCenters;
     }
+
+    public ArrayList<RecycleCenter> getCenters(){
+        return potentialCenters;
+    }
 }

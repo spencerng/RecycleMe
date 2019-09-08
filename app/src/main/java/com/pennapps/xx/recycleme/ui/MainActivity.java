@@ -29,6 +29,9 @@ import com.pennapps.xx.recycleme.data.VisionProcessor;
 import com.pennapps.xx.recycleme.models.RecyclableObject;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -134,9 +137,11 @@ public class MainActivity extends AppCompatActivity {
             // Extract this from start location later
             String zipCode = "08902";
 
-
             for (FirebaseVisionImageLabel itemLabel : itemLabels) {
-                items.add(new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get()));
+                RecyclableObject r = new RecyclableObject(itemLabel.getText(), new RecycleCenterFinder().execute(itemLabel.getText(), zipCode).get());
+                if(!(r.getCenters().isEmpty()))
+                    items.add(r);
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
     }
 
+   
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
