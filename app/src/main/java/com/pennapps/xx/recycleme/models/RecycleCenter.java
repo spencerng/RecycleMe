@@ -51,8 +51,16 @@ public class RecycleCenter implements Parcelable {
         return address;
     }
 
-    public double getDrivingDistance(Location fromThisLocation) {
-        return 0.0;
+    public Location getLocation(Context c) {
+        Location loc = new Location("");
+        loc.setLongitude(getLatLng(c).longitude);
+        loc.setLatitude(getLatLng(c).latitude);
+        return loc;
+    }
+
+    public double getDrivingDistance(Location fromThisLocation, Context c) {
+        return getLocation(c).distanceTo(fromThisLocation) / 1609.344;
+        //Return miles
     }
 
     public void deleteItems(ArrayList<String> itemNames){

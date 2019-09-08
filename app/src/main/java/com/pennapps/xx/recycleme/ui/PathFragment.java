@@ -57,13 +57,14 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
                 if (i == 0) {
                     startLatLng = new LatLng(start.getLatitude(), start.getLongitude());
                     endLatLng = centers.get(0).getLatLng(getContext());
+                    googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
+                } else {
+                    googleMap.addMarker(new MarkerOptions().position(startLatLng).title(centers.get(i).getName()));
                 }
                 if (i == centers.size() - 2) {
                     endLatLng = new LatLng(end.getLatitude(), end.getLongitude());
+                    googleMap.addMarker(new MarkerOptions().position(endLatLng).title("Work"));
                 }
-
-                googleMap.addMarker(new MarkerOptions().position(startLatLng).title("Current Location"));
-                googleMap.addMarker(new MarkerOptions().position(endLatLng).title("Final Destination"));
 
 
                 GMapV2Direction md = new GMapV2Direction(startLatLng, endLatLng, GMapV2Direction.MODE_DRIVING);
@@ -74,8 +75,8 @@ public class PathFragment extends Fragment implements OnMapReadyCallback {
                 PolylineOptions rectLine = new PolylineOptions().width(3).color(
                         Color.RED);
 
-                for (int j = 0; j < directionPoint.size(); i++) {
-                    rectLine.add(directionPoint.get(i));
+                for (int j = 0; j < directionPoint.size(); j++) {
+                    rectLine.add(directionPoint.get(j));
                 }
                 Polyline polyline = googleMap.addPolyline(rectLine);
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));

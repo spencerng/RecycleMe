@@ -11,7 +11,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<RecycleCenter>> {
@@ -30,6 +29,59 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
         this.latitude = latitude;
         this.longitude = longitude;
         this.item = item;
+    }
+
+    public static ArrayList<RecycleCenter> commonCenters(ArrayList<RecyclableObject> items){
+        ArrayList<String> itemNames = new ArrayList<>();
+        ArrayList<RecycleCenter> allCenters = new ArrayList<>();
+        ArrayList<Integer> correspondingNumbers = new ArrayList<>();
+        ArrayList<RecycleCenter> finalList = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++){
+            RecyclableObject obj = items.get(i);
+            String item = obj.getLabel();
+            itemNames.add(item);
+        }
+        for (int i = 0; i < items.size(); i++) {
+            RecyclableObject obj = items.get(i);
+            ArrayList<RecycleCenter> threeCenters = obj.getCenters();
+            if (!obj.getCenters().isEmpty()) {
+                for (int j = 0; j < 3 || j < threeCenters.size(); j++) {
+                    try {
+                        RecycleCenter checkingCenter = threeCenters.get(j);
+                        allCenters.add(checkingCenter);
+                        int count = checkingCenter.numberOfCommonItems(itemNames);
+                        correspondingNumbers.add(count);
+                    } catch (IndexOutOfBoundsException e) {
+                        continue;
+                    }
+                }
+            }
+        }
+        int highest = 0;
+        RecycleCenter most = allCenters.get(0);
+        for (int i = 0; i < correspondingNumbers.size(); i++){
+            if (correspondingNumbers.get(i) > highest){
+                highest = correspondingNumbers.get(i);
+                most = allCenters.get(i);
+            }
+        }
+        finalList.add(most);
+        for (int i = 0; i < itemNames.size(); i++){
+            if (!(most.isRecyclableHere(itemNames.get(i)))){
+                try {
+                    finalList.add(allCenters.get(i * 3));
+                } catch (IndexOutOfBoundsException e) {
+                    continue;
+                }
+            }
+        }
+
+        //find highest count in correspondingnumbers
+        //find associated objects
+        //delete associated objects from itemnames
+        //see if remaining objects are in any locations together
+        //else put top locations for each individual object
+    return finalList;
     }
 
     public ArrayList<RecycleCenter> doInBackground(Void... params) {
@@ -56,9 +108,9 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
                     String address = resultItem.getElementsByClass("address1").first().html() + ", " + resultItem.getElementsByClass("address3").html();
                     String resultUrl = baseUrl + resultItem.getElementsByClass("title").first().child(0).attr("href");
 
-                    Document locationPage = Jsoup.connect(resultUrl).get();
+                    //Document locationPage = Jsoup.connect(resultUrl).get();
 
-                    for (Element material : locationPage.getElementsByClass("material")) {
+                    for (Element material : doc.getElementsByClass("material")) {
                         collectedMaterials.add(material.html());
                     }
 
@@ -72,50 +124,6 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
         }
 
         return locations;
-    }
-
-
-    public static ArrayList<RecycleCenter> commonCenters(ArrayList<RecyclableObject> items){
-        ArrayList<String> itemNames = new ArrayList<>();
-        ArrayList<RecycleCenter> allCenters = new ArrayList<>();
-        ArrayList<Integer> correspondingNumbers = new ArrayList<>();
-        ArrayList<RecycleCenter> finalList = new ArrayList<>();
-        for (int i = 0; i < items.size(); i++){
-            RecyclableObject obj = items.get(i);
-            String item = obj.getLabel();
-            itemNames.add(item);
-        }
-        for (int i = 0; i < items.size(); i++) {
-            RecyclableObject obj = items.get(i);
-            ArrayList<RecycleCenter> threeCenters = obj.getCenters();
-            for (int j = 0; j < 3; j++){
-                RecycleCenter checkingCenter = threeCenters.get(j);
-                allCenters.add(checkingCenter);
-                int count = checkingCenter.numberOfCommonItems(itemNames);
-                correspondingNumbers.add(count);
-            }
-        }
-        int highest = 0;
-        RecycleCenter most = null;
-        for (int i = 0; i < correspondingNumbers.size(); i++){
-            if (correspondingNumbers.get(i) > highest){
-                highest = correspondingNumbers.get(i);
-                most = allCenters.get(i);
-            }
-        }
-        finalList.add(most);
-        for (int i = 0; i < itemNames.size(); i++){
-            if (!(most.isRecyclableHere(itemNames.get(i)))){
-                finalList.add(allCenters.get(i*3));
-            }
-        }
-
-        //find highest count in correspondingnumbers
-        //find associated objects
-        //delete associated objects from itemnames
-        //see if remaining objects are in any locations together
-        //else put top locations for each individual object
-    return finalList;
     }
 
 }
