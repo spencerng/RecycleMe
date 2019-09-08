@@ -60,7 +60,6 @@ public class ListFragment extends Fragment {
             TextView address = (TextView) av.findViewById(R.id.address);
             TextView items = (TextView) av.findViewById(R.id.items);
             TextView distance = (TextView) av.findViewById(R.id.distance);
-
             name.setText(center.getName());
             address.setText(center.getAddress());
             items.setText("Items List");
