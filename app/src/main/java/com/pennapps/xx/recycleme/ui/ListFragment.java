@@ -60,11 +60,14 @@ public class ListFragment extends Fragment {
             TextView address = (TextView) av.findViewById(R.id.address);
             TextView items = (TextView) av.findViewById(R.id.items);
             TextView distance = (TextView) av.findViewById(R.id.distance);
+            TextView number = (TextView) av.findViewById(R.id.number);
+
             name.setText(center.getName());
             address.setText(center.getAddress());
             items.setText("Items List");
             //distance.setText(center.getDrivingDistance(new Object()) + "mi");
             distance.setText("2.0 mi");
+            number.setText(centers.indexOf(center)+1);
 
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             if (!firstTime)
