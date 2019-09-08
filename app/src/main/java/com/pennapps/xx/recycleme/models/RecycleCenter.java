@@ -20,6 +20,7 @@ public class RecycleCenter implements Parcelable {
     private ArrayList<String> materialTypes;
     private String name;
     private String centerType;
+    private String itemsThatMatter;
 
     public RecycleCenter(String name, String address, String centerType, ArrayList<String> materialTypes) {
         this.address = address;
@@ -129,17 +130,22 @@ public class RecycleCenter implements Parcelable {
         return p1;
     }
 
-    //takes items from ArrayList of scanned things that this center takes and outputs as string
-    public String userFacingString(ArrayList<String> items) {
+    //takes items from ArrayList things, keeps only what center takes, then converts ArrayList to string
+
+    public void userFacingString(ArrayList<String> items) {
         String output = "";
 
         for (String item : items) {
-            output = output + item;
-            if (items.indexOf(item) != items.size() - 1) { //if item is not last item
-                output = output + ", ";
+            if (isRecyclableHere(item)) {
+                output = output + item + ", ";
             }
         }
-        return output;
+        output = output.substring(0, output.length() - 2);
+        itemsThatMatter = output;
+    }
+
+    public String getItemsThatMatter() {
+        return itemsThatMatter;
     }
 
 

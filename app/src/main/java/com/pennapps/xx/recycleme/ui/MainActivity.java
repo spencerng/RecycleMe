@@ -200,11 +200,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        Location endpoint = new Location("Work");
-        endpoint.setLatitude(40.2978707);
-        endpoint.setLongitude(-75.6562311);
-
-        ArrayList<RecycleCenter> centersToPass = sortCenters(RecycleCenterFinder.commonCenters(recyclableObjects), currentLocation, endpoint);
+        ArrayList<RecycleCenter> centersToPass = sortCenters(consolidateCenters(recyclableObjects), currentLocation, currentLocation);
 
         // Create intent filter here
         Intent toResult = new Intent(MainActivity.this, ResultsActivity.class);
