@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -31,6 +32,9 @@ import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
 import com.pennapps.xx.recycleme.data.VisionProcessor;
 import com.pennapps.xx.recycleme.models.RecyclableObject;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
@@ -212,9 +216,31 @@ public class MainActivity extends AppCompatActivity {
     public ArrayList<String> filterItems() {
         ArrayList<String> detectedItems = new ArrayList<>();
 
-        for (FirebaseVisionImageLabel label : labels) {
 
-        }
+        String baseUrl = "https://search.earth911.com/";
+        for (FirebaseVisionImageLabel label : labels){
+
+            String item = label.getText();
+            String searchUrl = baseUrl + "?what=" + item;
+
+            try {
+
+                if (zipCode != null) {
+                    searchUrl += "&where=" + zipCode + "&list_filter=all&max_distance=50";
+                } else {
+                    searchUrl += "&latitude=" + latitude + "&longitude=" + longitude + "&list_filter=all&max_distance=50";
+                }
+
+                Document doc = Jsoup.connect(searchUrl).get();
+                if (doc.getElementsByClass("result-item") != null){
+                    detectedItems.add(label.getText());
+                }
+            } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+
         return new ArrayList<>();
     }
 
