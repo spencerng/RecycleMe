@@ -16,20 +16,23 @@ import com.pennapps.xx.recycleme.models.RecycleCenter;
 import com.pennapps.xx.recycleme.ui.views.RCView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ListFragment extends Fragment {
     public ListFragment(){}
-
-    ArrayList<RecycleCenter> centers;
-    // ArrayList<String> items1 = new ArrayList<String>(Arrays.asList("Lightbulb", "Cable") );
-    // ArrayList<String> items2 = new ArrayList<String>(Arrays.asList("Shoe", "Electronics") );
-    /*= new ArrayList<RecycleCenter>(Arrays.asList(new RecycleCenter
+    ArrayList<String> items1 = new ArrayList<String>(Arrays.asList("Lightbulb", "Cable") );
+    ArrayList<String> items2 = new ArrayList<String>(Arrays.asList("Shoe", "Electronics") );
+    ArrayList<RecycleCenter> centers = new ArrayList<RecycleCenter>(Arrays.asList(new RecycleCenter
                     ("Center 1", "100 Technology Drive, Edison, NJ, 08837","Drop-Off", items1),
-                new RecycleCenter("Center 2", "123 Ho Plaza, Ithaca, NY, 14853", "Drop-Off", items2)));*/
+                new RecycleCenter("Center 2", "123 Ho Plaza, Ithaca, NY, 14853", "Drop-Off", items2)));
     RelativeLayout centerContainer;
 
     public ListFragment(ArrayList<RecycleCenter> centersList) {
         centers = centersList;
+    }
+
+    public void setCenters(ArrayList<RecycleCenter> cl){
+        centers = cl;
     }
 
 
@@ -70,7 +73,7 @@ public class ListFragment extends Fragment {
 
             name.setText(center.getName());
             address.setText(center.getAddress());
-            items.setText("Items List");
+            items.setText("Lightbulb, Cable");
             distance.setText(center.getDrivingDistance(MainActivity.currentLocation) + "mi");
             //distance.setText("2.0 mi");
             number.setText(centers.indexOf(center)+1);
