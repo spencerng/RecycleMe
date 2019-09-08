@@ -48,6 +48,23 @@ public class RecycleCenter implements Parcelable {
         return 0.0;
     }
 
+    public void deleteItems(ArrayList<String> itemNames){
+        for (String name: itemNames){
+            if (isRecyclableHere(name))
+                itemNames.remove(name);
+        }
+    }
+
+    public int numberOfCommonItems(ArrayList<String> itemNames){
+        int count = 0;
+        for (String name: itemNames){
+            if (isRecyclableHere(name)){
+                count++;
+            }
+        }
+        return count;
+    }
+
     public boolean isRecyclableHere(String objectType) {
         return materialTypes.contains(objectType);
     }

@@ -3,6 +3,7 @@ package com.pennapps.xx.recycleme.data;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.pennapps.xx.recycleme.models.RecyclableObject;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
 
 import org.jsoup.Jsoup;
@@ -10,6 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<RecycleCenter>> {
@@ -70,6 +72,50 @@ public class RecycleCenterFinder extends AsyncTask<Void, Void, ArrayList<Recycle
         }
 
         return locations;
+    }
+
+
+    public static ArrayList<RecycleCenter> commonCenters(ArrayList<RecyclableObject> items){
+        ArrayList<String> itemNames = new ArrayList<>();
+        ArrayList<RecycleCenter> allCenters = new ArrayList<>();
+        ArrayList<Integer> correspondingNumbers = new ArrayList<>();
+        ArrayList<RecycleCenter> finalList = new ArrayList<>();
+        for (int i = 0; i < items.size(); i++){
+            RecyclableObject obj = items.get(i);
+            String item = obj.getLabel();
+            itemNames.add(item);
+        }
+        for (int i = 0; i < items.size(); i++) {
+            RecyclableObject obj = items.get(i);
+            ArrayList<RecycleCenter> threeCenters = obj.getCenters();
+            for (int j = 0; j < 3; j++){
+                RecycleCenter checkingCenter = threeCenters.get(j);
+                allCenters.add(checkingCenter);
+                int count = checkingCenter.numberOfCommonItems(itemNames);
+                correspondingNumbers.add(count);
+            }
+        }
+        int highest = 0;
+        RecycleCenter most = null;
+        for (int i = 0; i < correspondingNumbers.size(); i++){
+            if (correspondingNumbers.get(i) > highest){
+                highest = correspondingNumbers.get(i);
+                most = allCenters.get(i);
+            }
+        }
+        finalList.add(most);
+        for (int i = 0; i < itemNames.size(); i++){
+            if (!(most.isRecyclableHere(itemNames.get(i)))){
+                finalList.add(allCenters.get(i*3));
+            }
+        }
+
+        //find highest count in correspondingnumbers
+        //find associated objects
+        //delete associated objects from itemnames
+        //see if remaining objects are in any locations together
+        //else put top locations for each individual object
+    return finalList;
     }
 
 }
