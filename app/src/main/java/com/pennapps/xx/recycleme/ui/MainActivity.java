@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -29,7 +28,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
 import com.pennapps.xx.recycleme.R;
 import com.pennapps.xx.recycleme.data.DistanceOptimizer;
-import com.pennapps.xx.recycleme.data.RecycleCenterFinder;
 import com.pennapps.xx.recycleme.data.VisionProcessor;
 import com.pennapps.xx.recycleme.models.RecyclableObject;
 import com.pennapps.xx.recycleme.models.RecycleCenter;
@@ -50,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     String zipCode;
     double latitude, longitude;
     Location currentLocation;
+    List<FirebaseVisionImageLabel> labels;
+    boolean locationFetched, labelsFetched;
 
     private static void verifyPermissions(Activity activity) {
         // Check if the app has write permission
@@ -76,16 +76,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         verifyPermissions(this);
 
+
+        locationFetched = false;
+        labelsFetched = false;
+
         btn = findViewById(R.id.button1);
         settings = findViewById(R.id.button);
         imageView = findViewById(R.id.imageView);
         resultView = findViewById(R.id.resultView);
         btn.setOnClickListener(new OnClickListener() {
-
             public void onClick(View v) {
-
                 openCameraIntent();
-
             }
         });
         settings.setOnClickListener(new OnClickListener() {
@@ -119,14 +120,22 @@ public class MainActivity extends AppCompatActivity {
 
     private File createImageFile() throws IOException {
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
         File image = new File(storageDir, "scan.jpg");
-
         imageFilePath = image.getAbsolutePath();
         return image;
     }
 
-    public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, final Location startLocation, Location endLocation) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath, bmOptions);
+        imageView.setImageBitmap(bitmap);
+        getLabels(imageFilePath);
+        fetchCurrentLocation();
+    }
+
+    public void getLabels(String imageFilePath) {
         final ArrayList<RecyclableObject> items = new ArrayList<>();
 
         VisionProcessor vp = new VisionProcessor(getApplicationContext(), imageFilePath);
@@ -145,19 +154,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void fetchRecycleCenters(List<FirebaseVisionImageLabel> itemLabels) {
                 try {
-                    // Extract this from start location later
+                    labels = itemLabels;
+                    if (locationFetched) {
 
-                    latitude = startLocation.getLatitude();
-                    longitude = startLocation.getLongitude();
-
-                    for (FirebaseVisionImageLabel itemLabel : itemLabels) {
-                        RecycleCenterFinder rcf = new RecycleCenterFinder(itemLabel.getText(), latitude, longitude);
-                        ArrayList<RecycleCenter> centers = rcf.execute().get();
-
-                        if (!centers.isEmpty()) {
-                            items.add(new RecyclableObject(itemLabel.getText(), centers));
-                            Log.i("center", centers.get(0).getAddress());
-                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -165,16 +164,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, items);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-        Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath, bmOptions);
-        imageView.setImageBitmap(bitmap);
-
+    public void fetchCurrentLocation() {
         FusedLocationProviderClient locationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         locationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
@@ -182,15 +174,27 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
                     zipCode = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1).get(0).getPostalCode();
+                    currentLocation = location;
+                    if (labelsFetched) {
 
-                    getSortedRecycleCenters(imageFilePath, location, null);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    public void fetchRecycleCenters() {
 
     }
+
+    public ArrayList<RecycleCenter> getSortedRecycleCenters(String imageFilePath, final Location startLocation, Location endLocation) {
+
+        return DistanceOptimizer.optimizeRecycleCenters(startLocation, endLocation, new ArrayList<RecyclableObject>());
+    }
+
+
 
 
 }
